@@ -323,6 +323,8 @@ def get_unc_metrics_rgb(
 
     
     rgb_pred_flat = rearrange(rgb_pred, "h w c -> (h w) c") 
+    if rgb_gt.shape[-1] == 4:  # if image has alpha channel
+        rgb_gt = rgb_gt[:,:, :3]  # remove alpha channel if present
     rgb_gt_flat = rearrange(rgb_gt, "h w c-> (h w) c")
     squared_error = torch.sum(((rgb_pred - rgb_gt) ** 2), dim=-1)
     absolute_error = torch.sum(torch.abs((rgb_pred - rgb_gt)), dim=-1)
@@ -666,6 +668,9 @@ def get_image_metrics_and_images_unc(
         outputs["depth"],
         accumulation=outputs["accumulation"],
     )
+    if image.shape[-1] == 4:  # if image has alpha channel
+        image = image[:, :, :3]  # remove alpha channel if present
+    
     combined_rgb = torch.cat([image, rgb], dim=1)
     combined_acc = torch.cat([acc], dim=1)
     combined_depth = torch.cat([depth], dim=1)
@@ -816,7 +821,7 @@ def get_image_metrics_and_images_unc(
 def get_average_uncertainty_metrics(
     self,
     get_outputs_for_camera_ray_bundle: Callable,
-    eval_depth_unc: bool = True,
+    eval_depth_unc: bool = False,                   # We dont have the GT Depth
     eval_rgb_unc: bool = True,
     plot_ause: bool = False,
     save_rendered_images: bool = False,
