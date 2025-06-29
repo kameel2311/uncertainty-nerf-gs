@@ -59,6 +59,9 @@ class ActiveNerfactoModel(NerfactoModel):
         else:
             scene_contraction = SceneContraction(order=float("inf"))
 
+        # BugFix: Appearance embedding setup
+        appearance_embedding_dim = self.config.appearance_embed_dim if self.config.use_appearance_embedding else 0
+
         self.field = ActiveNerfactoField(
             aabb=self.scene_box.aabb,
             hidden_dim=self.config.hidden_dim,
@@ -73,7 +76,7 @@ class ActiveNerfactoModel(NerfactoModel):
             num_images=self.num_train_data,
             use_pred_normals=self.config.predict_normals,
             use_average_appearance_embedding=self.config.use_average_appearance_embedding,
-            appearance_embedding_dim=self.config.appearance_embed_dim,
+            appearance_embedding_dim=appearance_embedding_dim,
             implementation=self.config.implementation,
             beta_min=self.config.beta_min
         )
